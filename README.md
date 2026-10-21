@@ -1,23 +1,28 @@
-# Class-balanced PCA concept heads vs per-predicate MLP on a digits stand-in
+# Low-label predicate detection: baseline MLP vs class-balanced RBF-SVM
 
-**Motivation.** Object-centric visual reasoning systems need predicate detectors that work with very few labels, and a single weak predicate head can break any rule that depends on it. "Weakly Supervised Concept Learning for Object-centric Visual Reasoning" (2026) proposes a two-stage neuro-symbolic SlotVAE whose concept heads feed symbolic reasoners, and reports zero-shot predicate accuracy at 1% supervision. This experiment asks whether a simpler, cross-validated concept-head recipe can improve the worst-predicate accuracy of a low-label detector.
+This script compares two per-predicate classifiers on a digits-based stand-in for object predicates (scikit-learn `load_digits`, five binary predicates derived from the digit label).
 
-**Question.** Can a class-balanced, cross-validated ensemble of concept heads on PCA features raise the worst-predicate accuracy of a low-label predicate detector above that of a standard per-predicate MLP head, using a digits-based stand-in for object predicates?
-
-**Dataset.** scikit-learn's bundled `load_digits` (no download). Five binary predicates are derived from each digit label and treated as object attributes. This is a stand-in, not the paper's dataset.
-
-**Baseline.** A standard per-predicate MLP on raw pixels, trained only on the labelled subset.
-
-**Improved model.** Standardised PCA features followed by class-balanced logistic regression, with C chosen by stratified CV on the labelled subset, isotonic calibration, and a per-predicate threshold.
-
-**How to run**
+## How to run
 
 ```
 pip install -r requirements.txt
 python analysis.py
 ```
 
-**Results** are written to `results.json` (and a chart to `figures/`).
+The script writes `results.json` and `figures/accuracy_bars.png`. It runs on CPU in well under a minute.
+
+## Method
+
+- Data: `load_digits`, split once into train pool and test set (30%, stratified by digit, seed 42). The test set is used only for final evaluation.
+- Labelled subsets: 1% and 5% of the training pool, stratified, seed 42.
+- Baseline: per-predicate `MLPClassifier` (64 hidden units) on raw pixels, threshold 0.5.
+- Improved: per-predicate class-balanced RBF-SVM on raw pixels, with C and gamma chosen by stratified cross-validated balanced accuracy on the labelled subset only.
+- Seeds 42, 43, 44. Metric: mean predicate accuracy on the test set.
+
+## Caveats
+
+- The predicates are deterministic functions of the digit label, so they are much easier than real object attributes. Results are not comparable to the paper's numbers.
+- With 12 to 62 labelled examples, CV-based selection is noisy.
 
 ## Reference
 

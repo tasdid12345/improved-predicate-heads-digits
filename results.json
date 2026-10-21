@@ -1,0 +1,40 @@
+{
+  "question": "Can a class-balanced, cross-validated ensemble of concept heads on PCA features raise the worst-predicate accuracy of a low-label predicate detector above that of a standard per-predicate MLP head, using a digits-based stand-in for object predicates?",
+  "method": "Five label-derived binary predicates on load_digits; stratified held-out split; labelled subsets sampled from the training pool at low fractions; baseline per-predicate MLP on pixels vs improved standardised PCA + balanced logistic regression (C by 3-5 fold CV) + isotonic calibration + per-predicate CV threshold; seeds 42, 43, 44.",
+  "dataset": {
+    "name": "scikit-learn load_digits (stand-in for object predicates)",
+    "source_url": "https://scikit-learn.org/stable/datasets/toy_dataset.html",
+    "n_rows": 1797,
+    "n_train": 1257,
+    "n_test": 540,
+    "same_as_paper": false,
+    "baseline_is_papers_method": false
+  },
+  "metric_name": "mean_predicate_accuracy",
+  "higher_is_better": true,
+  "baseline": "Standard per-predicate MLPClassifier (one hidden layer of 64 units) on raw pixels, trained only on the labelled subset, threshold 0.5.",
+  "improved": "Per-predicate standardised PCA features followed by class-balanced logistic regression with C chosen by stratified CV on the labelled subset, isotonic calibration, and a per-predicate threshold chosen from out-of-fold scores.",
+  "metrics": {
+    "baseline_score": 0.7606172839506172,
+    "baseline_score_std": 0.0025361282202683824,
+    "improved_score": 0.7160493827160493,
+    "improved_score_std": 0.00990274302723727,
+    "improvement": -0.044567901234567886,
+    "baseline_f1": 0.7257708099897341,
+    "improved_f1": 0.5413461552145279,
+    "baseline_min_acc": 0.7407407407407408,
+    "improved_min_acc": 0.6722222222222222,
+    "n_labelled": 12,
+    "baseline_score_5pct": 0.8849382716049382,
+    "baseline_score_std_5pct": 0.00419389821023774,
+    "improved_score_5pct": 0.8044444444444445,
+    "improved_score_std_5pct": 0.02108835680812852,
+    "improvement_5pct": -0.08049382716049369,
+    "baseline_f1_5pct": 0.8617100606668192,
+    "improved_f1_5pct": 0.7613815167152186,
+    "baseline_min_acc_5pct": 0.8654320987654321,
+    "improved_min_acc_5pct": 0.7271604938271604,
+    "n_labelled_5pct": 62
+  },
+  "notes": "Stand-in data: predicates are deterministic functions of the digit label, so they are far easier than real object attributes and the paper's 0.746 is not comparable. The labelled subsets are tiny (a few dozen examples at most), so CV, calibration and threshold choices are noisy. Unlabelled pool is unused by design. Improved model falls back to a constant predictor if a class has fewer than 3 labelled examples. Std is across the three seeds (population std). The test set is used once per model and seed; no selection on it."
+}
